@@ -1,0 +1,43 @@
+.artisan-section {
+    position: relative;
+    background-image: url('../images/notreRegion.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 400px; /* Ajustez la hauteur de l'image selon vos besoins */
+    border-top-left-radius: 80px; /* Arrondir le coin supérieur gauche */
+    border-top-right-radius: 80px; /* Arrondir le coin supérieur droit */
+    margin-bottom: 5px; /* Marge en bas pour l'espacement */
+}
+
+h2{
+    margin: 5px;
+    padding-bottom: 20px;
+}
+/* Texte sous l'image */
+.artisan-text {
+    text-align: center;
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    background-color: #f1f8fc; /* Fond semi-transparent pour le texte */
+    border-bottom-left-radius: 30px; /* Arrondir le coin inférieur gauche du texte */
+    border-bottom-right-radius: 30px; /* Arrondir le coin inférieur droit du texte */
+}
+
+.artisan-card {
+    height: 100%; /* Fait en sorte que chaque carte prenne la hauteur maximale disponible */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pour que les éléments dans la carte soient bien distribués */
+}
+
+/* Vous pouvez ajuster cette hauteur si nécessaire pour une hauteur plus uniforme */
+.artisan-card .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.artisan-card .card-img {
+    object-fit: cover;
+    height: 200px; /* Fixe une hauteur pour les images */
+}

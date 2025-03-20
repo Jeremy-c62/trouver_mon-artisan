@@ -1,0 +1,43 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px; 
+    justify-items: stretch; 
+    max-width: 600px; 
+    margin: 0 auto; 
+}
+
+/* A partir de 768px, 3 colonnes (tablettes) */
+@media (min-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr); 
+    }
+}
+
+/* A partir de 1200px, 5 colonnes (grandes résolutions) */
+@media (min-width: 1200px) {
+    .grid-container {
+        grid-template-columns: repeat(5, 1fr); 
+    }
+}
+
+/* Pour les petits écrans (inférieurs à 768px, téléphones) */
+@media (max-width: 767px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 colonnes maximum */
+    }
+}
+
+.text-changer-container {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .text-changer {
+    font-size: 18px;
+    font-weight: bold;
+    transition: opacity 1s ease-in-out; /* Ajoute une transition pour un changement en douceur */
+  }
+
