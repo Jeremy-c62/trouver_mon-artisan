@@ -24,7 +24,7 @@ const Error = () => {
                     marginBottom: '20px',
                 }}
             />
-            <h3 style={{ color: '#cd2c2e' }}>Cette pages n'existe pas! Veuillez vérifier votre URL !</h3>
+            <h3 style={{ color: '#cd2c2e' }}>Cette pages n'existe pas! Veuillez vérifier votre URL .</h3>
             <div className="d-flex justify-content-center mt-4">
                 <Button
                     variant="success"
