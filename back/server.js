@@ -1,19 +1,29 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
+require('dotenv').config();  // Pour charger les variables d'environnement depuis .env
 
 const app = express();
 app.use(cors());
 
-app.use('/images', express.static('images'));
-
+// Configurer la connexion MySQL avec les variables d'environnement
 const db = mysql.createConnection({
-    host: "localhost",
-    user: 'root',
-    password: '',
-    database: 'mon_artisan'
+    host: process.env.HOST_DB,       // Hôte MySQL, à récupérer depuis .env
+    user: process.env.USER_DB,       // Utilisateur MySQL
+    password: process.env.PASSWORD_DB, // Mot de passe MySQL
+    database: process.env.NAME_DB    // Nom de la base de données
 });
 
+// Vérifier la connexion MySQL
+db.connect((err) => {
+    if (err) {
+        console.error('Erreur de connexion à MySQL :', err);
+        return;
+    }
+    console.log('Connecté à la base de données MySQL');
+});
+
+// Route d'accueil pour tester la connexion à la base de données
 app.get('/', (req, res) => {
     return res.json('Connecté à MySQL');
 });
@@ -25,7 +35,7 @@ app.get('/api/branches', (req, res) => {
             console.error(err);
             res.status(500).send('Erreur serveur');
         } else {
-            res.json(result);  // Retourne toutes les branches
+            res.json(result);
         }
     });
 });
@@ -37,16 +47,17 @@ app.get('/api/metiers', (req, res) => {
         return res.status(400).send('ID de catégorie requis');
     }
 
-    const sql = 'SELECT * FROM metier WHERE branche_id = ?'; // Utiliser branche_id pour filtrer les métiers par catégorie
+    const sql = 'SELECT * FROM metier WHERE branche_id = ?';
     db.query(sql, [categoryId], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).send('Erreur serveur');
         }
-        return res.json(result);  // Retourne les métiers associés à la catégorie spécifiée
+        return res.json(result);
     });
 });
 
+// Récupérer les artisans du mois
 app.get('/artisan-du-mois', (req, res) => {
     const sql = `
         SELECT * FROM artisan
@@ -60,10 +71,11 @@ app.get('/artisan-du-mois', (req, res) => {
             console.error('Erreur dans la requête SQL : ', err);
             return res.json({ error: 'Erreur dans la récupération des artisans du mois' });
         }
-        return res.json(data);  // Retourne les artisans du mois triés
+        return res.json(data);
     });
 });
 
+// Recherche d'artisans par nom
 app.get('/artisan', (req, res) => {
     const searchTerm = req.query.search || '';
     if (searchTerm.length < 2) {
@@ -80,6 +92,7 @@ app.get('/artisan', (req, res) => {
     });
 });
 
+// Récupérer les informations détaillées d'un artisan
 app.get('/artisan/:id', (req, res) => {
     const artisanId = req.params.id;
     const sql = `
@@ -96,6 +109,8 @@ app.get('/artisan/:id', (req, res) => {
     });
 });
 
-app.listen(8080, () => {
-    console.log("Serveur démarré et connecté à MySQL");
+// Démarrer le serveur sur le port défini dans les variables d'environnement ou 8080 par défaut
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`Serveur démarré sur le port ${PORT} et connecté à MySQL`);
 });
