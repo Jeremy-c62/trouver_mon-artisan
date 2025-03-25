@@ -46,7 +46,7 @@ function Header() {
 
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8080/artisan', {
+            const response = await axios.get('https://trouver-mon-artisan.vercel.app/artisan', {
                 params: { search: term }, // Passer le terme de recherche
             });
             setArtisans(response.data); // Mettre à jour les artisans avec la réponse du serveur

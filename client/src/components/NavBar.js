@@ -14,7 +14,7 @@ function NavBar() {
 
     useEffect(() => {
         // Charger les branches depuis l'API
-        fetch('http://localhost:8080/api/branches')
+        fetch('https://trouver-mon-artisan.vercel.app/api/branches')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur de la réponse du serveur');
