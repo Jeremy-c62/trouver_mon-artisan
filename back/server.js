@@ -109,6 +109,17 @@ app.get('/artisan/:id', async (req, res) => {
     }
 });
 
+app.get('/test-db', async (req, res) => {
+    try {
+        const client = await pool.connect();
+        const result = await client.query('SELECT NOW()');
+        client.release();
+        res.json({ success: true, time: result.rows[0].now });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Lancer le serveur sur le port 8080
 app.listen(8080, () => {
     console.log("Serveur démarré et connecté à PostgreSQL");
