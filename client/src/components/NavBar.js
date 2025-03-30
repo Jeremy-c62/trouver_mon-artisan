@@ -13,8 +13,8 @@ function NavBar() {
     const navbarRef = useRef(null); // Référence du menu
 
     useEffect(() => {
-        // Charger les branches depuis l'API
-        fetch('https://trouver-mon-artisan.vercel.app/api/branches')
+        // Charger les branches depuis l'API avec la variable d'environnement
+        fetch(`${process.env.REACT_APP_API_URL}/api/branches`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erreur de la réponse du serveur');
