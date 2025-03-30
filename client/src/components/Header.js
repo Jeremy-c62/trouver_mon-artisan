@@ -46,23 +46,19 @@ function Header() {
 
         setLoading(true);
         try {
-            const response = await axios.get('https://trouver-mon-artisan.vercel.app/artisan', {
+            const response = await axios.get('https://localhost:8080/artisan', {
                 params: { search: term },
             });
 
-            // Vérification du type de contenu de la réponse
-            const contentType = response.headers['content-type'];
-            if (contentType && contentType.includes('application/json')) {
-                setArtisans(response.data); // Mettre à jour les artisans avec la réponse du serveur
-            } else {
-                console.error('La réponse n\'est pas au format JSON:', response);
-            }
+            setArtisans(response.data); // Mettre à jour les artisans avec la réponse du serveur
+
         } catch (error) {
             console.error('Erreur lors de la récupération des artisans:', error);
         } finally {
             setLoading(false);
         }
     }, []);
+
     // Mettre en place un délai (debounce) pour éviter les appels excessifs
     const handleChange = (e) => {
         const value = e.target.value;
