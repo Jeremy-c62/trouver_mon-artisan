@@ -1,64 +1,64 @@
 const express = require('express');
-const mysql = require('mysql');
+const { Pool } = require('pg'); // Remplacez mysql par pg
 const cors = require('cors');
-require('dotenv').config();  // Pour charger les variables d'environnement depuis .env
+const dotenv = require('dotenv');
+
+// Charger les variables d'environnement à partir du fichier .env
+dotenv.config();
 
 const app = express();
 app.use(cors());
 
-// Configurer la connexion MySQL avec les variables d'environnement
-const db = mysql.createConnection({
-    host: process.env.HOST_DB,       // Hôte MySQL, à récupérer depuis .env
-    user: process.env.USER_DB,       // Utilisateur MySQL
-    password: process.env.PASSWORD_DB, // Mot de passe MySQL
-    database: process.env.NAME_DB    // Nom de la base de données
-});
+app.use('/images', express.static('images'));
 
-// Vérifier la connexion MySQL
-db.connect((err) => {
-    if (err) {
-        console.error('Erreur de connexion à MySQL :', err);
-        return;
+// Configuration de la connexion PostgreSQL
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false // Nécessaire si vous utilisez SSL, par exemple sur Neon.tech
     }
-    console.log('Connecté à la base de données MySQL');
 });
 
-// Route d'accueil pour tester la connexion à la base de données
-app.get('/', (req, res) => {
-    return res.json('Connecté à MySQL');
+// Vérifier la connexion à la base de données
+app.get('/', async (req, res) => {
+    try {
+        const client = await pool.connect();
+        res.json('Connecté à PostgreSQL');
+        client.release(); // Relâcher le client après la connexion
+    } catch (err) {
+        console.error('Erreur de connexion à PostgreSQL', err);
+        res.status(500).json('Erreur de connexion à PostgreSQL');
+    }
 });
 
 // Récupérer toutes les branches
-app.get('/api/branches', (req, res) => {
-    db.query('SELECT * FROM branche', (err, result) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Erreur serveur');
-        } else {
-            res.json(result);
-        }
-    });
+app.get('/api/branches', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM branche');
+        res.json(result.rows);  // Retourne toutes les branches
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erreur serveur');
+    }
 });
 
 // Récupérer les métiers associés à une catégorie (branche)
-app.get('/api/metiers', (req, res) => {
+app.get('/api/metiers', async (req, res) => {
     const categoryId = req.query.categoryId;
     if (!categoryId) {
         return res.status(400).send('ID de catégorie requis');
     }
 
-    const sql = 'SELECT * FROM metier WHERE branche_id = ?';
-    db.query(sql, [categoryId], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Erreur serveur');
-        }
-        return res.json(result);
-    });
+    try {
+        const result = await pool.query('SELECT * FROM metier WHERE branche_id = $1', [categoryId]);
+        res.json(result.rows);  // Retourne les métiers associés à la catégorie spécifiée
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erreur serveur');
+    }
 });
 
-// Récupérer les artisans du mois
-app.get('/artisan-du-mois', (req, res) => {
+app.get('/artisan-du-mois', async (req, res) => {
     const sql = `
         SELECT * FROM artisan
         WHERE note >= 1
@@ -66,34 +66,32 @@ app.get('/artisan-du-mois', (req, res) => {
         LIMIT 3
     `;
 
-    db.query(sql, (err, data) => {
-        if (err) {
-            console.error('Erreur dans la requête SQL : ', err);
-            return res.json({ error: 'Erreur dans la récupération des artisans du mois' });
-        }
-        return res.json(data);
-    });
+    try {
+        const result = await pool.query(sql);
+        res.json(result.rows);  // Retourne les artisans du mois triés
+    } catch (err) {
+        console.error('Erreur dans la requête SQL : ', err);
+        res.json({ error: 'Erreur dans la récupération des artisans du mois' });
+    }
 });
 
-// Recherche d'artisans par nom
-app.get('/artisan', (req, res) => {
+app.get('/artisan', async (req, res) => {
     const searchTerm = req.query.search || '';
     if (searchTerm.length < 2) {
         return res.json([]);
     }
 
-    const sql = `SELECT * FROM artisan WHERE nom LIKE ?`;
-    db.query(sql, [`%${searchTerm}%`], (err, data) => {
-        if (err) {
-            console.error('Erreur dans la requête SQL : ', err);
-            return res.json({ error: 'Erreur dans la récupération des artisans' });
-        }
-        return res.json(data);
-    });
+    const sql = `SELECT * FROM artisan WHERE nom LIKE $1`;
+    try {
+        const result = await pool.query(sql, [`%${searchTerm}%`]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Erreur dans la requête SQL : ', err);
+        res.json({ error: 'Erreur dans la récupération des artisans' });
+    }
 });
 
-// Récupérer les informations détaillées d'un artisan
-app.get('/artisan/:id', (req, res) => {
+app.get('/artisan/:id', async (req, res) => {
     const artisanId = req.params.id;
     const sql = `
         SELECT a.nom, i.note, i.a_propos, c.ville, c.email, i.image, m.specialite, c.site_web
@@ -101,16 +99,17 @@ app.get('/artisan/:id', (req, res) => {
         JOIN infos i ON a.id = i.artisan_id
         JOIN coordonnees c ON a.id = c.artisan_id
         JOIN metier m ON a.id = m.artisan_id 
-        WHERE a.id = ?`;
+        WHERE a.id = $1`;
 
-    db.query(sql, [artisanId], (err, data) => {
-        if (err) return res.json(err);
-        return res.json(data[0]);
-    });
+    try {
+        const result = await pool.query(sql, [artisanId]);
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.json(err);
+    }
 });
 
-// Démarrer le serveur sur le port défini dans les variables d'environnement ou 8080 par défaut
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Serveur démarré sur le port ${PORT} et connecté à MySQL`);
+// Lancer le serveur sur le port 8080
+app.listen(8080, () => {
+    console.log("Serveur démarré et connecté à PostgreSQL");
 });
