@@ -1,29 +1,30 @@
+require('dotenv').config(); // Charger les variables d'environnement
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());  //  Ajout pour parser JSON
-app.use(express.urlencoded({ extended: true }));
 
+// Middleware pour permettre CORS et traiter le JSON
+app.use(cors());
+app.use(express.json());  // Pour analyser le JSON dans les requêtes
+app.use(express.urlencoded({ extended: true })); // Pour analyser les formulaires URL-encoded
+
+// Servir les images depuis un dossier 'images'
 app.use('/images', express.static('images'));
 
-// 🔐 Connexion PostgreSQL sécurisée
+// Connexion PostgreSQL sécurisée
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-// Vérification connexion DB
+// Vérification de la connexion à la DB avec une route simple
 app.get('/', async (req, res) => {
     try {
         const client = await pool.connect();
         res.json('Connecté à PostgreSQL');
-        client.release();
+        client.release(); // Libérer le client après utilisation
     } catch (err) {
         console.error('Erreur de connexion à PostgreSQL', err);
         res.status(500).json('Erreur de connexion à PostgreSQL');
@@ -41,7 +42,7 @@ app.get('/api/branches', async (req, res) => {
     }
 });
 
-// Récupérer métiers par branche
+// Récupérer les métiers par branche
 app.get('/api/metiers', async (req, res) => {
     const categoryId = req.query.categoryId;
     if (!categoryId) return res.status(400).json({ error: 'ID de catégorie requis' });
@@ -86,7 +87,7 @@ app.get('/artisan', async (req, res) => {
     }
 });
 
-// Récupérer détails d'un artisan
+// Récupérer les détails d'un artisan
 app.get('/artisan/:id', async (req, res) => {
     const artisanId = req.params.id;
     const sql = `
@@ -119,7 +120,7 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-// 🚀 Lancer le serveur
+// Lancer le serveur
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Serveur démarré sur http://localhost:${PORT}`);
