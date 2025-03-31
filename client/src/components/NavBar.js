@@ -16,12 +16,13 @@ function NavBar() {
         // Charger les branches depuis l'API avec la variable d'environnement
         fetch(`${process.env.REACT_APP_API_URL}/api/branches`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur de la réponse du serveur');
-                }
-                return response.json();
+                console.log('Réponse brute:', response);
+                return response.text(); // Changez en .text() pour voir le contenu
             })
-            .then(data => setBranches(data))
+            .then(data => {
+                console.log('Données reçues:', data);
+                setBranches(JSON.parse(data)); // Transformez seulement si c'est bien du JSON
+            })
             .catch(error => console.error('Erreur:', error));
 
         // Fonction pour fermer le menu lorsque l'on clique en dehors
