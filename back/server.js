@@ -36,12 +36,12 @@ app.get('/', async (req, res) => {
 });
 
 // Récupérer toutes les branches
-app.get('/api/branches', async (req, res) => {
+app.get('/api/branche', async (req, res) => {
     try {
-        const result = await sql`SELECT * FROM branche`;
+        const result = await sql`SELECT * FROM mon_artisan.branche`;  // Retirer "mon_artisan."
         res.json(result);
     } catch (err) {
-        console.error(' Erreur SQL :', err);
+        console.error('Erreur lors de la récupération des branches :', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
@@ -52,15 +52,15 @@ app.get('/api/metiers', async (req, res) => {
     if (!categoryId) return res.status(400).json({ error: 'ID de catégorie requis' });
 
     try {
-        const result = await sql`SELECT * FROM metier WHERE branche_id = ${categoryId}`;
+        const result = await sql`SELECT * FROM "mon_artisan"."metier" WHERE "branche_id" = ${categoryId}`;
         res.json(result);
     } catch (err) {
-        console.error(' Erreur SQL :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('Erreur SQL :', err.message || err);
+        res.status(500).json({ error: `Erreur serveur: ${err.message || err}` });
     }
 });
 
-//  Artisan du mois (top 3 artisans les mieux notés)
+// Artisan du mois (top 3 artisans les mieux notés)
 app.get('/artisan-du-mois', async (req, res) => {
     try {
         const result = await sql`
@@ -76,13 +76,13 @@ app.get('/artisan-du-mois', async (req, res) => {
     }
 });
 
-//  Recherche artisan par nom
+// Recherche artisan par nom
 app.get('/artisan', async (req, res) => {
     const searchTerm = req.query.search || '';
     if (searchTerm.length < 2) return res.json([]);
 
     try {
-        const result = await sql`SELECT * FROM artisan WHERE nom ILIKE ${'%' + searchTerm + '%'}`;
+        const result = await sql`SELECT * FROM mon_artisan.artisan WHERE nom ILIKE ${'%' + searchTerm + '%'}`;
         res.json(result);
     } catch (err) {
         console.error(' Erreur SQL :', err);
@@ -90,7 +90,7 @@ app.get('/artisan', async (req, res) => {
     }
 });
 
-//  Récupérer les détails d'un artisan
+// Récupérer les détails d'un artisan
 app.get('/artisan/:id', async (req, res) => {
     const artisanId = req.params.id;
     try {
@@ -107,12 +107,12 @@ app.get('/artisan/:id', async (req, res) => {
         `;
         res.json(result[0]);
     } catch (err) {
-        console.error(' Erreur SQL :', err);
+        console.error('Erreur SQL :', err);
         res.status(500).json({ error: 'Erreur récupération artisan' });
     }
 });
 
-//  Test de connexion à PostgreSQL
+// Test de connexion à PostgreSQL
 app.get('/test-db', async (req, res) => {
     try {
         const result = await sql`SELECT NOW()`;
