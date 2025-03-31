@@ -1,13 +1,18 @@
 require('dotenv').config({ path: '.env.development.local' }); // Charger les variables d'environnement depuis .env.dev
 
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors');  // Importation de cors
 const { neon } = require('@neondatabase/serverless');
 
 const app = express();
 
 // Middleware pour CORS et JSON
-app.use(cors());
+app.use(cors({
+    origin: 'https://trouver-mon-artisan.vercel.app',  // Permet uniquement ce domaine
+    methods: ['GET', 'POST'],  // Méthodes autorisées
+    allowedHeaders: ['Content-Type'],  // En-têtes autorisés
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
