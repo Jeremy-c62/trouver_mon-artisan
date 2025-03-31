@@ -3,6 +3,7 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import Logo from '../images/Logo.jpg';
 import './navBar.css';
 
+// Fonction pour retirer les accents des branches
 function removeAccents(str) {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 }
@@ -14,14 +15,16 @@ function NavBar() {
 
     useEffect(() => {
         // Charger les branches depuis l'API avec la variable d'environnement
-        fetch(`${process.env.REACT_APP_API_URL}/api/branches`)
+        fetch(`${process.env.REACT_APP_API_URL}/api/branche`)
             .then(response => {
-                console.log('Réponse brute:', response);
-                return response.text(); // Changez en .text() pour voir le contenu
+                if (!response.ok) {
+                    throw new Error(`Erreur API: ${response.statusText}`);
+                }
+                return response.json(); // Directement en JSON
             })
             .then(data => {
-                console.log('Données reçues:', data);
-                setBranches(JSON.parse(data)); // Transformez seulement si c'est bien du JSON
+                console.log('Branches reçues:', data);
+                setBranches(data); // On reçoit directement le JSON
             })
             .catch(error => console.error('Erreur:', error));
 
@@ -41,6 +44,7 @@ function NavBar() {
         };
     }, []);
 
+    // Gérer l'ouverture/fermeture du menu
     const handleToggle = () => {
         setIsOpen(!isOpen); // Ouvrir ou fermer le menu lorsque l'icône toggle est cliquée
     };
@@ -56,7 +60,7 @@ function NavBar() {
                     />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={handleToggle} />
-                <Navbar.Collapse id="basic-navbar-nav" in={isOpen}>
+                <Navbar.Collapse id="basic-navbar-nav" className={isOpen ? 'show' : ''}>
                     <Nav className="ms-auto">
                         <Nav.Link href="/home" className="nav-link">Accueil</Nav.Link>
                         {branches.map((branche) => (

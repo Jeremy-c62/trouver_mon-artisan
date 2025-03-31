@@ -11,6 +11,7 @@ function Header() {
     const [inputWidth, setInputWidth] = useState('300px'); // État pour la largeur de la barre de recherche
     const [inputOffsetTop, setInputOffsetTop] = useState(0); // État pour la position verticale de l'input
     const resultsRef = useRef(null); // Référence pour la liste des résultats
+    const debounceTimeoutRef = useRef(null); // Référence pour stocker le timeout debounce
 
     const métiers = [
         { id: 1, nom: 'Boucher' },
@@ -25,11 +26,9 @@ function Header() {
         { id: 10, nom: 'Couturier' },
         { id: 11, nom: 'Ferronier' },
         { id: 12, nom: 'Coiffeur' },
-        { id: 13, nom: 'Coiffeur' },
-        { id: 14, nom: 'Coiffeur' },
-        { id: 15, nom: 'Fleuriste' },
-        { id: 16, nom: 'Toiletteur' },
-        { id: 17, nom: 'Webdesign' }
+        { id: 13, nom: 'Fleuriste' },
+        { id: 14, nom: 'Toiletteur' },
+        { id: 15, nom: 'Webdesign' }
     ];
 
     const navigateToPage = (artisanId) => {
@@ -63,8 +62,14 @@ function Header() {
     const handleChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
+
+        // Nettoyer le précédent timeout debounce
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+        }
+
         // Appeler fetchArtisans avec un délai
-        setTimeout(() => fetchArtisans(value), 500); // Attendre 500ms après la dernière frappe
+        debounceTimeoutRef.current = setTimeout(() => fetchArtisans(value), 500);
     };
 
     const handleSearchSubmit = (e) => {
