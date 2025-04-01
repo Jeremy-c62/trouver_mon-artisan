@@ -138,8 +138,8 @@ app.get('/test-db', (req, res) => {
 
 // Lancer le serveur
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(` Serveur démarré sur http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Serveur démarré sur http://0.0.0.0:${PORT}`);
     console.log("Connexion MySQL à :", process.env.MYSQL_HOST, "Port :", process.env.MYSQL_PORT);
     console.log("DB HOST:", process.env.MYSQL_HOST);
 });
