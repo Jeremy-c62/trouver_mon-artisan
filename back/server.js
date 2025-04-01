@@ -104,7 +104,7 @@ app.get('/artisan', (req, res) => {
     });
 });
 
-// Récupérer les détails d'un artisan
+// Récupérer des détails d'un artisan
 app.get('/artisan/:id', (req, res) => {
     const artisanId = req.params.id;
     connection.query(`
