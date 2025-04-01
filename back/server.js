@@ -2,58 +2,66 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2');  // Importation de mysql2
+const mysql = require('mysql2');
 
 const app = express();
 
-// Middleware pour CORS et JSON
+// Configuration CORS (sécuriser après test)
 app.use(cors({
-    origin: 'https://trouver-mon-artisan.vercel.app',  // Permet uniquement ce domaine
-    methods: ['GET', 'POST'],  // Méthodes autorisées
-    allowedHeaders: ['Content-Type'],  // En-têtes autorisés
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir les images depuis un dossier 'images'
-app.use('/images', express.static('images'));
-
-// Vérifier si les variables d'environnement de la base de données sont bien définies
+// Vérifier les variables d'environnement
 if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
-    console.error(" Erreur : Les informations de connexion à la base de données ne sont pas définies !");
+    console.error("Erreur : Les informations de connexion MySQL ne sont pas définies !");
     process.exit(1);
 }
 
-// Connexion à MySQL
+// Connexion MySQL
 const connection = mysql.createConnection({
-    host: process.env.NODE_ENV === "production" ? process.env.MYSQL_HOST : "tramway.proxy.rlwy.net",
-    port: process.env.NODE_ENV === "production" ? process.env.MYSQL_PORT : 51874,
+    host: process.env.MYSQL_HOST,
+    port: process.env.MYSQL_PORT || 3306,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE
 });
 
-
-// Vérifier la connexion
 connection.connect((err) => {
     if (err) {
-        console.error(' Erreur de connexion à MySQL :', err);
+        console.error('Erreur de connexion à MySQL :', err);
         process.exit(1);
     }
-    console.log(' Connexion réussie à MySQL !');
+    console.log('Connexion réussie à MySQL !');
 });
 
-// Vérification de connexion via une route
+// Vérification API
 app.get('/', (req, res) => {
-    res.json({ message: ' Connecté à MySQL' });
+    res.json({ message: 'API Fonctionnelle !' });
 });
+
+// Test de connexion à la BDD
+app.get('/test-db', (req, res) => {
+    connection.query('SELECT NOW()', (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, time: results[0] });
+    });
+});
+
+// Servir les images
+app.use('/images', express.static('images'));
 
 // Récupérer toutes les branches
 app.get('/api/branche', (req, res) => {
     connection.query('SELECT * FROM branche', (err, results) => {
         if (err) {
-            console.error('Erreur lors de la récupération des branches :', err);
+            console.error('Erreur récupération branches :', err);
             return res.status(500).json({ error: 'Erreur serveur' });
         }
         res.json(results);
@@ -67,8 +75,8 @@ app.get('/api/metiers', (req, res) => {
 
     connection.query('SELECT * FROM metier WHERE branche_id = ?', [categoryId], (err, results) => {
         if (err) {
-            console.error('Erreur SQL :', err.message || err);
-            return res.status(500).json({ error: `Erreur serveur: ${err.message || err}` });
+            console.error('Erreur SQL :', err);
+            return res.status(500).json({ error: 'Erreur serveur' });
         }
         res.json(results);
     });
@@ -104,7 +112,7 @@ app.get('/artisan', (req, res) => {
     });
 });
 
-// Récupérer des détails d'un artisan
+// Récupérer les détails d'un artisan
 app.get('/artisan/:id', (req, res) => {
     const artisanId = req.params.id;
     connection.query(`
@@ -126,20 +134,9 @@ app.get('/artisan/:id', (req, res) => {
     });
 });
 
-// Test de connexion à MySQL
-app.get('/test-db', (req, res) => {
-    connection.query('SELECT NOW()', (err, results) => {
-        if (err) {
-            return res.status(500).json({ success: false, error: err.message });
-        }
-        res.json({ success: true, time: results[0] });
-    });
-});
-
 // Lancer le serveur
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Serveur démarré sur http://0.0.0.0:${PORT}`);
+    console.log(`Serveur en ligne sur http://0.0.0.0:${PORT}`);
     console.log("Connexion MySQL à :", process.env.MYSQL_HOST, "Port :", process.env.MYSQL_PORT);
-    console.log("DB HOST:", process.env.MYSQL_HOST);
 });
