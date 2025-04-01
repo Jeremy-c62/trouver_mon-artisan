@@ -27,11 +27,11 @@ if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PAS
 
 // Connexion à MySQL
 const connection = mysql.createConnection({
-    host: process.env.MYSQL_HOST, // Utilisation de la variable d'environnement
-    port: process.env.MYSQL_PORT, // Utilisation de la variable d'environnement
-    user: process.env.MYSQL_USER, // Utilisation de la variable d'environnement
-    password: process.env.MYSQL_PASSWORD, // Utilisation de la variable d'environnement
-    database: process.env.MYSQL_DATABASE // Utilisation de la variable d'environnement
+    host: process.env.NODE_ENV === "production" ? process.env.MYSQL_HOST : "tramway.proxy.rlwy.net",
+    port: process.env.NODE_ENV === "production" ? process.env.MYSQL_PORT : 51874,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE
 });
 
 
@@ -140,4 +140,6 @@ app.get('/test-db', (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(` Serveur démarré sur http://localhost:${PORT}`);
+    console.log("Connexion MySQL à :", process.env.MYSQL_HOST, "Port :", process.env.MYSQL_PORT);
+    console.log("DB HOST:", process.env.MYSQL_HOST);
 });
