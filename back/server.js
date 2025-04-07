@@ -8,9 +8,9 @@ const app = express();
 
 // Configuration CORS (sécuriser après test)
 app.use(cors({
-    origin: '*',
+    origin: 'https://trouver-mon-artisan.vercel.app',
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
+    credentials: true,
 }));
 
 app.use(express.json());
