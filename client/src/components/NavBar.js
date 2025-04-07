@@ -15,7 +15,7 @@ function NavBar() {
 
     useEffect(() => {
         // Charger les branches depuis l'API avec la variable d'environnement
-        fetch(`${process.env.REACT_APP_API_URL}/api/branche`)
+        fetch(`${process.env.REACT_APP_API_URL}api/branche`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Erreur API: ${response.statusText}`);
