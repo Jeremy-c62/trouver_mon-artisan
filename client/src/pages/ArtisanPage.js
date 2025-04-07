@@ -23,14 +23,14 @@ function ArtisanPage() {
         // Fonction pour récupérer les données de l'artisan
         const fetchArtisan = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/artisan/${id}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/artisan/${id}`);
                 setArtisan(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération de l'artisan:", error);
             }
         };
 
-        fetchArtisan();
+        fetchArtisan(); // N'oublie pas d'appeler la fonction
     }, [id]);
 
     // Une fois que les données de l'artisan sont chargées, scroller vers l'image

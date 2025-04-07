@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import { Navbar, Nav, Container, Spinner } from 'react-bootstrap'; // Ajout du Spinner pour indiquer un chargement
 import Logo from '../images/Logo.jpg';
 import './navBar.css';
 
@@ -11,6 +11,7 @@ function removeAccents(str) {
 function NavBar() {
     const [branches, setBranches] = useState([]);
     const [isOpen, setIsOpen] = useState(false); // Etat pour gérer l'ouverture du menu
+    const [isLoading, setIsLoading] = useState(true); // Etat de chargement
     const navbarRef = useRef(null); // Référence du menu
 
     useEffect(() => {
@@ -25,8 +26,12 @@ function NavBar() {
             .then(data => {
                 console.log('Branches reçues:', data);
                 setBranches(data); // On reçoit directement le JSON
+                setIsLoading(false); // Une fois les données reçues, on arrête le chargement
             })
-            .catch(error => console.error('Erreur:', error));
+            .catch(error => {
+                console.error('Erreur:', error);
+                setIsLoading(false); // Si une erreur se produit, on arrête également le chargement
+            });
 
         // Fonction pour fermer le menu lorsque l'on clique en dehors
         const handleClickOutside = (event) => {
@@ -63,15 +68,23 @@ function NavBar() {
                 <Navbar.Collapse id="basic-navbar-nav" className={isOpen ? 'show' : ''}>
                     <Nav className="ms-auto">
                         <Nav.Link href="/home" className="nav-link">Accueil</Nav.Link>
-                        {branches.map((branche) => (
-                            <Nav.Link
-                                key={branche.id}
-                                href={`/${removeAccents(branche.categorie.toLowerCase())}`}
-                                className="nav-link"
-                            >
-                                {branche.categorie}
+
+                        {/* Affichage conditionnel pour afficher un spinner pendant le chargement */}
+                        {isLoading ? (
+                            <Nav.Link className="nav-link" disabled>
+                                <Spinner animation="border" size="sm" /> Chargement...
                             </Nav.Link>
-                        ))}
+                        ) : (
+                            branches.map((branche) => (
+                                <Nav.Link
+                                    key={branche.id}
+                                    href={`/${encodeURIComponent(removeAccents(branche.categorie.toLowerCase()))}`}
+                                    className="nav-link"
+                                >
+                                    {branche.categorie}
+                                </Nav.Link>
+                            ))
+                        )}
                     </Nav>
                 </Navbar.Collapse>
             </Container>
