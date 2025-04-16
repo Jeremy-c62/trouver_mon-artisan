@@ -100,7 +100,7 @@ function ArtisanPage() {
                 <Card.Img
                     ref={imageRef} // Lier la référence à l'image de l'artisan
                     variant="top"
-                    src={`http://localhost:8080/images/${artisan.image}`}
+                    src={`/images/artisans/${artisan.image}`}
                     alt={artisan.nom}
                     className="artisan-image"
                     style={{ height: '300px', objectFit: 'cover' }}
