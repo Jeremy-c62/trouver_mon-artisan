@@ -7,11 +7,26 @@ const mysql = require('mysql2');
 const app = express();
 
 // Configuration CORS (sécuriser après test)
-app.use(cors({
-    origin: 'https://trouver-mon-artisan.vercel.app',
-    methods: ['GET', 'POST'],
+const allowedOrigins = [
+    'https://trouver-mon-artisan.vercel.app',
+    'http://localhost:3000'
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        console.log('Requête provenant de :', origin);
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('CORS refusé pour :', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
-}));
+    methods: ['GET', 'POST']
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +40,7 @@ if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PAS
 // Connexion MySQL
 const connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT || 51874,
+    port: process.env.MYSQL_PORT || 8080,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE

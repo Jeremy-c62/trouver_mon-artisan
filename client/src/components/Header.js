@@ -26,9 +26,11 @@ function Header() {
         { id: 10, nom: 'Couturier' },
         { id: 11, nom: 'Ferronier' },
         { id: 12, nom: 'Coiffeur' },
-        { id: 13, nom: 'Fleuriste' },
-        { id: 14, nom: 'Toiletteur' },
-        { id: 15, nom: 'Webdesign' }
+        { id: 13, nom: 'Coiffeur' },
+        { id: 14, nom: 'Coiffeur' },
+        { id: 15, nom: 'Fleuriste' },
+        { id: 16, nom: 'Toiletteur' },
+        { id: 17, nom: 'Webdesign' }
     ];
 
     const navigateToPage = (artisanId) => {
