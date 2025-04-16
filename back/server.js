@@ -9,7 +9,8 @@ const app = express();
 // Configuration CORS (sécuriser après test)
 const allowedOrigins = [
     'https://trouver-mon-artisan.vercel.app',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://trouvermon-artisan-production.up.railway.app'
 ];
 
 const corsOptions = {
