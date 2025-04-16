@@ -152,7 +152,7 @@ app.get('/artisan/:id', (req, res) => {
 
 // Lancer le serveur
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "127.0.0.1", () => {
-    console.log(`Serveur en ligne sur http://127.0.0.1:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Serveur en ligne sur http://0.0.0.0:${PORT}`);
     console.log("Connexion MySQL à :", process.env.MYSQL_HOST, "Port :", process.env.MYSQL_PORT);
 });
