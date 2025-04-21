@@ -100,7 +100,7 @@ function ArtisanPage() {
                 <Card.Img
                     ref={imageRef}
                     variant="top"
-                    src={`${process.env.REACT_APP_API_URL}/${artisan.image}`}
+                    src={`${process.env.REACT_APP_API_URL}/images/${artisan.image}`}
                     alt={artisan.nom}
                     className="artisan-image"
                     style={{ height: '300px', objectFit: 'cover' }}
