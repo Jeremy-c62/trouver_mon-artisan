@@ -98,9 +98,9 @@ function ArtisanPage() {
             {/* Carte artisan */}
             <Card className="artisan-card mb-4" style={{ display: 'flex', flexDirection: 'column', maxWidth: '900px', margin: '0 auto' }}>
                 <Card.Img
-                    ref={imageRef} // Lier la référence à l'image de l'artisan
+                    ref={imageRef}
                     variant="top"
-                    src={`./images/artisans/${artisan.image}`}
+                    src={`${process.env.REACT_APP_API_URL}/${artisan.image}`}
                     alt={artisan.nom}
                     className="artisan-image"
                     style={{ height: '300px', objectFit: 'cover' }}
