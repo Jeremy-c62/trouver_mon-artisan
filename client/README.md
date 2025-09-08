@@ -97,7 +97,7 @@ Pour travailler en local.
 Modifier le .env :
 
 Pour le front:
-REACT_APP_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:8080
 
 pour le back:
 Crée votre environement.

@@ -1,4 +1,12 @@
 require('dotenv').config();
+console.log('MYSQL_HOST:', process.env.MYSQL_HOST);
+console.log('ENV VARIABLES:', {
+    MYSQL_HOST: process.env.MYSQL_HOST,
+    MYSQL_PORT: process.env.MYSQL_PORT,
+    MYSQL_USER: process.env.MYSQL_USER,
+    MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
+    MYSQL_DATABASE: process.env.MYSQL_DATABASE
+});
 
 const express = require('express');
 const cors = require('cors');
@@ -33,7 +41,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Vérifier les variables d'environnement
-if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+if (
+    !process.env.MYSQL_HOST ||
+    !process.env.MYSQL_USER ||
+    typeof process.env.MYSQL_PASSWORD === 'undefined' ||  // <-- attention ici
+    !process.env.MYSQL_DATABASE
+) {
     console.error("Erreur : Les informations de connexion MySQL ne sont pas définies !");
     process.exit(1);
 }
@@ -41,7 +54,7 @@ if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PAS
 // Connexion MySQL
 const connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT || 8080,
+    port: process.env.MYSQL_PORT,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE
@@ -151,7 +164,7 @@ app.get('/artisan/:id', (req, res) => {
 });
 
 // Lancer le serveur
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3306;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Serveur en ligne sur http://0.0.0.0:${PORT}`);
     console.log("Connexion MySQL à :", process.env.MYSQL_HOST, "Port :", process.env.MYSQL_PORT);
